@@ -26,6 +26,7 @@ services:
       - "${HTTPS_PORT:-443}:443"
     environment:
       DOMAIN: "${DOMAIN:-localhost}"
+      NGINX_ENVSUBST_FILTER: "DOMAIN"
     volumes:
       - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
       - "${CERTS_DIR:-/etc/letsencrypt}:/etc/letsencrypt:ro"
