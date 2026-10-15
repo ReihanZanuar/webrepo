@@ -1,0 +1,10 @@
+data/*
+.env
+node_modules/
+.env.*
+!.env.example
+backups/
+secrets/
+output/
+.DS_Store
+*.log

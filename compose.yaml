@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-8080}:4173"
+    environment:
+      ADMIN_TOKEN: "${ADMIN_TOKEN:?Jalankan npm run setup untuk membuat .env}"
+    volumes:
+      - repository-data:/data
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 30s
+volumes:
+  repository-data:
