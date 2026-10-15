@@ -1,4 +1,21 @@
-# Pemeriksaan revisi interaktif — 15 Oktober 2026
+# Catatan verifikasi
+
+## Perjalanan lab tersambung — 16 Oktober 2026
+
+- PASS `npm test`: 3 pengujian, meliputi kontinuitas enam tujuan kamera, pemetaan scroll dengan tinggi segmen berbeda, serta integrasi SQLite/upload/validasi/persistensi/migrasi yang sudah ada.
+- PASS Chrome pada Docker `http://127.0.0.1:8080`: scroll maju dan mundur melalui keenam segmen memakai satu canvas. Mode klik menahan posisi kamera saat halaman digulir; pergantian kembali ke scroll mengikuti posisi halaman saat itu.
+- PASS navigasi antarsegmen, tautan langsung `#repository`, riwayat kembali/maju, pilihan perangkat melalui raycast, drag, tombol putar/reset, dan kontrol keyboard. Ukuran viewport 3D sama ketika berpindah antarsegi, termasuk pada lebar tablet 1000 px.
+- PASS PC: angkat/satukan komponen, periksa CPU/RAM dan penjelasannya. LAN: sambungkan, kirim paket, status diterima. Monitor: mati/nyala. Pause: kamera berhenti meskipun halaman digulir dan kembali mengikuti setelah dilanjutkan.
+- PASS reduced motion: mode klik, navigasi tanpa interpolasi kamera, dan pengiriman paket langsung selesai dengan status teks. Tombol LAN dapat dijangkau pada layar 320×750; padding gulir menjaga kontrol dari panel 3D dan navigasi tetap.
+- PASS layout Chrome 1440×1000, 390×844, 320×750, dan layar pendek 720×500; tidak ada horizontal overflow. Framing pembuka, close-up perakitan/jaringan/workstation/repository, serta screenshot mobile ditinjau. Reflow 720×500 bukan pengujian zoom browser 200% yang sebenarnya.
+- PASS fallback Chrome dengan WebGL dinonaktifkan: pesan bantuan tampil, kontrol 3D dinonaktifkan, pencarian/reload repository dan akses admin tetap tersedia.
+- PASS pencarian, filter, pengurutan, reload, buka/tutup dialog admin; rangkaian pengujian browser pada container selesai tanpa pageerror atau console error.
+- PASS `docker compose up -d --build`; container `webrepo-web-1` healthy di port 8080. Mount tetap `webrepo_repository-data` pada `/data`.
+- PASS pemeriksaan sintaks modul dan `git diff --check`. Screenshot lokal disimpan di `output/qa-2026-10-16/` (diabaikan Git).
+
+Batas pemeriksaan: Safari/iOS nyata, pembaca layar, zoom browser 200%, dan performa pada GPU kelas rendah belum diuji. Pengiriman paket adalah simulasi visual; miniatur merupakan ilustrasi konseptual fasilitas belajar.
+
+## Riwayat revisi interaktif — 15 Oktober 2026
 
 ## Lab WebGL: PASS terverifikasi di Chrome
 

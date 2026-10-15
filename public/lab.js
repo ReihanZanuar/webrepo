@@ -1,31 +1,31 @@
 import * as THREE from '/vendor/three.module.js';
+import { mountJourney } from './lab-controls.js';
 
 const $ = selector => document.querySelector(selector);
 const canvas = $('#lab');
 const viewport = $('.lab-viewport');
-const reduceQuery = matchMedia('(prefers-reduced-motion: reduce)');
-let paused = reduceQuery.matches;
 let renderer;
 try {
   renderer = new THREE.WebGLRenderer({canvas, antialias: true, powerPreference: 'low-power'});
 } catch {
   $('#lab-loading').textContent = 'Tampilan 3D membutuhkan WebGL. Aktifkan akselerasi grafis browser, lalu muat ulang. Repository tetap bisa digunakan.';
-  document.querySelectorAll('.lab-tabs button,.lab-camera button,#motion').forEach(button => button.disabled = true);
+  document.body.dataset.webgl='unavailable';
+  document.querySelectorAll('.lab-actions button,.lab-camera button,#motion,.explore-mode button').forEach(button => button.disabled = true);
 }
 if (renderer) initLab();
 
 function initLab() {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#e8e9e1');
+  scene.background = new THREE.Color('#eeeee5');
   const camera = new THREE.PerspectiveCamera(38, 1, .1, 90);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.22;
-  scene.add(new THREE.HemisphereLight('#fff4dd', '#9bada9', 2.1));
-  const sunlight = new THREE.DirectionalLight('#fff1d6', 3.2);
+  renderer.toneMappingExposure = 1.05;
+  scene.add(new THREE.HemisphereLight('#fff4dd', '#869791', 1.8));
+  const sunlight = new THREE.DirectionalLight('#fff1d6', 3.0);
   sunlight.position.set(-4, 10, 6);
   sunlight.castShadow = true;
   sunlight.shadow.mapSize.set(2048, 2048);
@@ -48,6 +48,17 @@ function initLab() {
   }
   function box(x,y,z,w,h,d,color,parent=scene,options={}) {
     return mesh(new THREE.BoxGeometry(w,h,d),mat(color,options),[x,y,z],parent);
+  }
+  const beveled = new Map();
+  function softBox(x,y,z,w,h,d,color,parent=scene) {
+    const key=[w,h,d].join('/');
+    if(!beveled.has(key)) {
+      const r=Math.min(w,h,d)*.16,shape=new THREE.Shape();
+      shape.moveTo(-w/2+r,-h/2+r);shape.lineTo(w/2-r,-h/2+r);shape.lineTo(w/2-r,h/2-r);shape.lineTo(-w/2+r,h/2-r);shape.closePath();
+      const geometry=new THREE.ExtrudeGeometry(shape,{depth:d-2*r,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:r,bevelThickness:r});
+      geometry.translate(0,0,-d/2+r);geometry.computeVertexNormals();beveled.set(key,geometry);
+    }
+    return mesh(beveled.get(key),mat(color),[x,y,z],parent);
   }
   function cylinder(x,y,z,r,h,color,parent=scene) {
     return mesh(new THREE.CylinderGeometry(r,r,h,20),mat(color),[x,y,z],parent);
@@ -98,9 +109,14 @@ function initLab() {
   for(let i=0;i<7;i++)box(-4.4+i*.2,2.65,-3.55,.13,.45,.3,i%2?palette.blue:'#e2decd',room);
 
   const stations={};
-  for(const key of ['assembly','network','workstation']) {const group=new THREE.Group();group.userData.station=key;scene.add(group);stations[key]=group;}
+  for(const key of ['assembly','network','workstation','repository']) {const group=new THREE.Group();group.userData.station=key;scene.add(group);stations[key]=group;}
+  const woodCanvas=document.createElement('canvas');woodCanvas.width=512;woodCanvas.height=512;
+  const woodContext=woodCanvas.getContext('2d');woodContext.fillStyle='#d9b47f';woodContext.fillRect(0,0,512,512);
+  for(let i=0;i<130;i++){woodContext.strokeStyle=`rgba(100,61,25,${.025+(i%5)*.01})`;woodContext.lineWidth=.5+(i%3)*.4;woodContext.beginPath();for(let x=0;x<=512;x+=16){const y=i*4+Math.sin(x*.012+i)*2; x?woodContext.lineTo(x,y):woodContext.moveTo(x,y);}woodContext.stroke();}
+  const woodTexture=new THREE.CanvasTexture(woodCanvas);woodTexture.colorSpace=THREE.SRGBColorSpace;woodTexture.wrapS=woodTexture.wrapT=THREE.RepeatWrapping;woodTexture.repeat.set(2,1);
+  const woodMaterial=new THREE.MeshStandardMaterial({map:woodTexture,roughness:.6});
   function desk(x,z,w,parent){
-    box(x,1.27,z,w,.12,1.3,palette.wood,parent);
+    softBox(x,1.27,z,w,.12,1.3,palette.wood,parent).material=woodMaterial;
     box(x,1.18,z,w-.08,.07,1.2,'#b48b5b',parent);
     for(const dx of [-w/2+.12,w/2-.12])for(const dz of [-.48,.48])box(x+dx,.6,z+dz,.07,1.2,.07,palette.metal,parent);
     box(x,.27,z-.48,w-.2,.055,.055,palette.metal,parent);
@@ -121,8 +137,8 @@ function initLab() {
   }
   function chair(x,z,parent){
     cylinder(x,.58,z,.08,1,'#8c9998',parent);
-    const seat=box(x,.84,z,.68,.13,.62,palette.blue,parent);seat.rotation.x=-.04;
-    box(x,1.24,z+.31,.68,.68,.09,palette.blue,parent);
+    const seat=softBox(x,.84,z,.68,.13,.62,palette.blue,parent);seat.rotation.x=-.04;
+    softBox(x,1.24,z+.31,.68,.68,.09,palette.blue,parent);
     box(x,1.23,z+.365,.55,.5,.035,'#3f7789',parent);
     for(const side of [-1,1]){box(x+side*.39,.93,z,.045,.43,.045,palette.metal,parent);box(x+side*.39,1.12,z,.09,.05,.4,palette.metal,parent);}
     for(let i=0;i<5;i++){const a=i*Math.PI*2/5;const leg=box(x+Math.sin(a)*.21,.12,z+Math.cos(a)*.21,.045,.06,.45,palette.metal,parent);leg.rotation.y=a;const wheel=cylinder(x+Math.sin(a)*.42,.07,z+Math.cos(a)*.42,.07,.05,'#273d44',parent);wheel.rotation.z=Math.PI/2;}
@@ -191,85 +207,43 @@ function initLab() {
   function plant(x,z){cylinder(x,.28,z,.24,.55,'#c7bda6');cylinder(x,.57,z,.21,.025,'#645d49');for(let i=0;i<7;i++){const leaf=mesh(new THREE.SphereGeometry(.22,10,8),mat(i%2?'#657d5c':'#839671'),[x+Math.sin(i*2)*.2,.9+i*.07,z+Math.cos(i*2)*.18]);leaf.scale.set(.55,1.5,.7);leaf.rotation.z=Math.sin(i)*.4;}}
   plant(-4.35,2.7);plant(4.45,-3.05);
 
-  const presets={
-    overview:{position:[11,9,14],look:[0,1,0],title:'Benda kecil.\nIde besar.',body:'Klik perangkat di dalam ruang atau pilih area di atas. Setiap meja punya praktik yang bisa kamu coba.',label:'Pandangan seluruh lab'},
-    assembly:{position:[2.5,5.5,7],look:[-1.9,1.45,1.45],title:'Kenali isi\nkomputermu.',body:'Angkat komponen untuk melihat susunannya. Pilih CPU atau RAM untuk menemukan perannya.',label:'01 / Meja perakitan'},
-    network:{position:[7,4.7,4.5],look:[2.6,1.4,-2.1],title:'Sambungkan.\nKirim. Terima.',body:'Hubungkan workstation ke switch, lalu kirim paket data simulasi melalui kabel LAN.',label:'02 / Praktik jaringan'},
-    workstation:{position:[3,4.5,4.2],look:[-1.65,1.4,-2.35],title:'Siapkan meja\nbelajarmu.',body:'Nyalakan monitor untuk melihat diagram jaringan sederhana, kemudian ambil materi praktik di repository.',label:'03 / Workstation'}
-  };
-  const state={station:'overview',exploded:false,connected:false,power:true,sending:false,hover:null};
-  let targetPos=new THREE.Vector3(...presets.overview.position),targetLook=new THREE.Vector3(...presets.overview.look),look=targetLook.clone();
-  camera.position.copy(targetPos);camera.lookAt(look);
-  let frame=0,visible=true,lastTime=0,sendStart=0,explosion=0,transitionUntil=0;
-  const names={assembly:'Meja perakitan',network:'Rak jaringan',workstation:'Meja belajar'};
-  function feedback(text){$('#lab-feedback').textContent=text;}
-  function action(text,fn,id,pressed){const button=document.createElement('button');button.textContent=text;if(id)button.id=id;if(pressed!==undefined)button.setAttribute('aria-pressed',String(pressed));button.addEventListener('click',fn);$('#lab-actions').append(button);return button;}
-  function updateActions(){
-    const container=$('#lab-actions');container.replaceChildren();
-    if(state.station==='overview') {
-      action('Mulai dari perakitan',()=>select('assembly'),'start-lab');
-      feedback('Tip: perangkat juga bisa dipilih langsung di dalam ruang.');
-    } else if(state.station==='assembly') {
-      action(state.exploded?'Satukan komponen':'Angkat komponen',()=>{state.exploded=!state.exploded;updateActions();feedback(state.exploded?'Komponen dipisahkan untuk memperlihatkan CPU, pendingin, RAM, dan motherboard.':'Komponen kembali ke dudukannya.');wake();},'explode-pc',state.exploded);
-      action('Periksa CPU',()=>{selectPart(cpu);feedback('CPU memproses instruksi. Pendingin di atasnya membantu membuang panas saat komputer bekerja.');},'inspect-cpu');
-      action('Periksa RAM',()=>{selectPart(ram);feedback('RAM menyimpan data sementara yang sedang dipakai program. Data ini tidak disimpan ketika listrik mati.');},'inspect-ram');
-      feedback('Klik Angkat komponen untuk membedah susunan komputer.');
-    } else if(state.station==='network') {
-      action(state.connected?'Lepas kabel LAN':'Sambungkan kabel LAN',()=>{state.connected=!state.connected;state.sending=false;path.tube.visible=state.connected;packet.visible=false;updateLights();updateActions();feedback(state.connected?'Kabel terpasang. Indikator link menyala. Sekarang coba kirim paket.':'Kabel dilepas. Jalur data terputus.');wake();},'connect-lan',state.connected);
-      const send=action('Kirim paket data',()=>{if(!state.connected||state.sending)return;state.sending=true;sendStart=performance.now();send.disabled=true;feedback(paused?'Paket terkirim ke switch. Gerakan dinonaktifkan.':'Paket bergerak dari workstation menuju switch…');if(paused)finishPacket();else wake();},'send-packet');send.disabled=!state.connected||state.sending;
-      feedback(state.connected?'Link aktif. Coba kirim satu paket data.':'Belum terhubung. Pasang kabel LAN terlebih dahulu.');
-    } else {
-      action(state.power?'Matikan monitor':'Nyalakan monitor',()=>{state.power=!state.power;screens.forEach(screen=>screen.material=state.power?litScreen:darkScreen);updateActions();feedback(state.power?'Monitor aktif. Diagram menunjukkan dua komputer yang dihubungkan melalui switch.':'Monitor dimatikan. Tekan Nyalakan monitor untuk kembali melihat diagram.');wake();},'power-monitor',state.power);
-      const link=document.createElement('a');link.href='#repository';link.textContent='Cari materi praktik';container.append(link);
-      feedback('Layar menampilkan diagram pengenalan jaringan lokal.');
-    }
+  // Storage and workshop tools connect the physical room to the final repository chapter.
+  const archive=stations.repository;
+  softBox(3.55,.74,1.25,2.1,1.42,1.05,palette.blue,archive);
+  softBox(3.55,1.49,1.25,2.25,.12,1.18,palette.wood,archive).material=woodMaterial;
+  for(const x of [3.05,4.05])for(const y of [.35,.8,1.2]){
+    softBox(x,y,1.8,.89,.32,.035,'#376d7b',archive);
+    box(x,y,1.84,.3,.035,.045,'#a3b0a9',archive,{metalness:.55});
+    const tab=label(y>.9?'APLIKASI':y>.5?'EBOOK':'BERKAS',.48,.09);tab.position.set(x,y+.09,1.827);archive.add(tab);
   }
-  const selectionBox=new THREE.BoxHelper(cpu,'#e9b52e');selectionBox.visible=false;scene.add(selectionBox);
-  function selectPart(part){selectionBox.setFromObject(part);selectionBox.visible=true;transitionUntil=performance.now()+2500;wake();}
-  function updateLights(){lights.forEach(light=>{light.material=mat(state.connected?'#7fbd85':'#9daa9b',state.connected?{emissive:'#4b9a55',emissiveIntensity:.7}:{});});}
-  function select(key){
-    state.station=key;const preset=presets[key];targetPos.set(...preset.position);targetLook.set(...preset.look);selectionBox.visible=false;
-    document.querySelectorAll('[data-station]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.station===key)));
-    $('#scene-number').textContent=key==='overview'?'Selamat datang di lab':preset.label;
-    $('#scene-title').textContent=preset.title;$('#scene-body').textContent=preset.body;$('#view-label').textContent=preset.label;
-    updateActions();wake();
+  for(let i=0;i<6;i++){
+    const book=softBox(2.75+i*.16,1.87,1.25,.13,.65,.51,i%2?'#d6bc8a':'#e7e4d6',archive);book.rotation.z=i===5?-.1:0;
+    box(2.75+i*.16,1.88,1.513,.08,.03,.008,palette.blue,archive);
   }
-  function finishPacket(){state.sending=false;packet.visible=false;feedback('Paket diterima switch. Simulasi pengiriman selesai.');const button=$('#send-packet');if(button)button.disabled=!state.connected;wake();}
-  document.querySelectorAll('[data-station]').forEach(button=>button.addEventListener('click',()=>select(button.dataset.station)));
-  function rotate(delta){const offset=targetPos.clone().sub(targetLook);offset.applyAxisAngle(new THREE.Vector3(0,1,0),delta);targetPos.copy(targetLook).add(offset);wake();}
-  function zoom(factor){const offset=targetPos.clone().sub(targetLook);const distance=THREE.MathUtils.clamp(offset.length()*factor,4,26);targetPos.copy(targetLook).add(offset.setLength(distance));wake();}
-  $('#rotate-left').addEventListener('click',()=>rotate(-.22));$('#rotate-right').addEventListener('click',()=>rotate(.22));
-  $('#zoom-in').addEventListener('click',()=>zoom(.85));$('#zoom-out').addEventListener('click',()=>zoom(1.18));$('#reset-view').addEventListener('click',()=>select(state.station));
-  canvas.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();rotate(-.16);}if(event.key==='ArrowRight'){event.preventDefault();rotate(.16);}if(event.key==='+'||event.key==='=')zoom(.85);if(event.key==='-')zoom(1.18);});
-  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let drag=null;
-  function hit(event){const rect=canvas.getBoundingClientRect();pointer.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(pointer,camera);const intersections=raycaster.intersectObjects(Object.values(stations),true);if(!intersections.length)return null;let obj=intersections[0].object;while(obj&&!obj.userData.station)obj=obj.parent;return obj?.userData.station;}
-  canvas.addEventListener('pointerdown',event=>{drag={x:event.clientX,startX:event.clientX,y:event.clientY,moved:false};canvas.setPointerCapture(event.pointerId);});
-  canvas.addEventListener('pointermove',event=>{
-    if(drag){if(Math.abs(event.clientX-drag.startX)>5||Math.abs(event.clientY-drag.y)>8)drag.moved=true;rotate(-(event.clientX-drag.x)*.006);drag.x=event.clientX;return;}
-    const key=hit(event);canvas.style.cursor=key?'pointer':'grab';const tooltip=$('#lab-hover');tooltip.hidden=!key;if(key)tooltip.textContent=`${names[key]} · klik untuk masuk`;
-    if(state.hover!==key){state.hover=key;marker.visible=!!key;const p=key&&presets[key].look;if(p)marker.position.set(p[0],.07,p[2]);wake();}
-  });
-  canvas.addEventListener('pointerup',event=>{if(drag&&!drag.moved){const key=hit(event);if(key)select(key);}drag=null;});canvas.addEventListener('pointercancel',()=>{drag=null;});
-  canvas.addEventListener('pointerleave',()=>{$('#lab-hover').hidden=true;marker.visible=false;wake();});
-  function updateMotion(){const button=$('#motion');button.textContent=paused?'Aktifkan gerakan':'Hentikan gerakan';button.setAttribute('aria-pressed',String(paused));if(paused&&state.sending)finishPacket();wake();}
-  $('#motion').addEventListener('click',()=>{paused=!paused;updateMotion();});reduceQuery.addEventListener('change',()=>{paused=reduceQuery.matches;updateMotion();});
-  function resize(){const width=viewport.clientWidth,height=viewport.clientHeight;renderer.setSize(width,height,false);camera.aspect=width/height;camera.fov=width<500?48:38;camera.updateProjectionMatrix();wake();}
-  new ResizeObserver(resize).observe(viewport);
-  new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)wake();},{rootMargin:'100px'}).observe(viewport);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake();});
-  canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();$('#lab-loading').hidden=false;$('#lab-loading').textContent='Koneksi grafis terputus. Muat ulang halaman untuk membuka lab kembali.';});
-  function wake(){if(!frame&&visible&&!document.hidden)frame=requestAnimationFrame(render);}
-  function render(time){
-    frame=0;if(!visible||document.hidden)return;
-    const dt=Math.min((time-lastTime)/1000,.05);lastTime=time;const blend=paused?1:1-Math.exp(-7*dt);
-    camera.position.lerp(targetPos,blend);look.lerp(targetLook,blend);camera.lookAt(look);
-    const goal=state.exploded?1:0;explosion=paused?goal:THREE.MathUtils.lerp(explosion,goal,blend);
-    [motherboard,cpu,cooler,ram].forEach((part,index)=>{part.position.copy(partOrigins[index]);part.position.y+=explosion*[.13,.22,.8,.5][index];});
-    if(selectionBox.visible){selectionBox.update();if(time>transitionUntil)selectionBox.visible=false;}
-    if(state.sending){const t=Math.min((time-sendStart)/2200,1);packet.visible=true;packet.position.copy(path.curve.getPointAt(t));if(t>=1)finishPacket();}
-    renderer.render(scene,camera);
-    const moving=camera.position.distanceToSquared(targetPos)>.00001||look.distanceToSquared(targetLook)>.00001||Math.abs(explosion-goal)>.001;
-    if(moving||state.sending||selectionBox.visible)wake();
-  }
-  updateActions();updateMotion();resize();$('#lab-loading').hidden=true;canvas.dataset.ready='true';
+  softBox(4.12,1.73,1.25,.68,.35,.58,'#e4e4d8',archive);
+  box(4.12,1.74,1.55,.48,.035,.012,palette.metal,archive);
+  box(4.12,1.91,1.15,.46,.015,.4,'#fffdf3',archive);
+  const archiveSign=label('REPOSITORY',1.35,.2);archiveSign.position.set(3.55,1.4,1.85);archive.add(archiveSign);
+  // Bench accessories use real scale relationships so close camera views still read as a lab.
+  for(let i=0;i<4;i++)cylinder(-2.78+i*.27,1.48,1.19,.025,.045,'#b4bcae',stations.assembly);
+  box(-.7,1.42,1.1,.33,.14,.24,'#d3b04f',stations.assembly);
+  box(-.7,1.5,1.1,.22,.012,.13,'#244c51',stations.assembly);
+  cable([[-.8,1.45,1.2],[-1.1,1.4,1.4],[-1.2,1.42,1.75],[-.85,1.4,1.9]],'#d19d28',.012,stations.assembly);
+  for(let i=0;i<3;i++)cable([[-2.8+i*.09,1.43,1.21],[-2.9+i*.09,1.64,1.3],[-2.8+i*.09,1.57,1.55]],i%2?'#bd7749':'#cfb455',.009,stations.assembly);
+  softBox(-3.5,.64,1.55,.48,1.1,1.05,'#536b6d',stations.assembly);
+  for(let i=0;i<3;i++){box(-3.5,.35+i*.3,2.09,.42,.25,.025,'#38545b',stations.assembly);box(-3.5,.4+i*.3,2.12,.22,.025,.03,'#c4c9bb',stations.assembly);}
+  const lampBase=cylinder(-3.13,1.38,1.03,.15,.06,palette.metal,stations.assembly);
+  cable([[-3.13,1.4,1.03],[-3.13,2.05,1.03],[-2.7,2.28,1.03]],palette.metal,.025,stations.assembly);
+  const shade=mesh(new THREE.ConeGeometry(.18,.24,20,1,true),mat('#d0ac53',{side:THREE.DoubleSide}),[-2.7,2.17,1.03],stations.assembly);
+  const bulb=mesh(new THREE.SphereGeometry(.07,12,8),mat('#fff0b1',{emissive:'#ffe7a0',emissiveIntensity:.8}),[-2.7,2.1,1.03],stations.assembly);
+  const deskLight=new THREE.PointLight('#ffe2a0',.45,2.5,2);deskLight.position.set(-2.7,2.05,1.03);scene.add(deskLight);
+  box(.4,.45,-3.65,1.1,.15,.05,'#d6d7c9',room);
+  for(let i=0;i<4;i++){box(.04+i*.24,.45,-3.61,.13,.1,.03,'#f4f3e6',room);box(.04+i*.24,.45,-3.588,.05,.012,.006,'#526564',room);}
+  cable([[-.55,1.35,-2.78],[-.55,.4,-3.45],[.35,.4,-3.56]],'#496678',.016,stations.workstation);
+  const clockFace=mesh(new THREE.CylinderGeometry(.29,.29,.045,40),mat('#f3eedc'),[.9,2.9,-3.68],room);clockFace.rotation.x=Math.PI/2;
+  const clockHand=box(.9,2.98,-3.645,.018,.17,.018,palette.metal,room);box(.97,2.9,-3.64,.15,.018,.018,palette.metal,room);
+  const ground=mesh(new THREE.PlaneGeometry(150,150),mat('#eeeee5'),[0,-.43,0]);ground.rotation.x=-Math.PI/2;ground.castShadow=false;
+
+  mountJourney({THREE,canvas,viewport,renderer,scene,camera,stations,room,mat,lights,path,packet,marker,
+    screens,litScreen,darkScreen,parts:[motherboard,cpu,cooler,ram],partOrigins});
 }

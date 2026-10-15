@@ -1,1 +1,1 @@
-{"name":"lab-tkj-repository","private":true,"type":"module","scripts":{"start":"node server.mjs","test":"node --test test.mjs","setup":"node scripts/setup.mjs"},"engines":{"node":">=24"},"dependencies":{"three":"^0.186.1"}}
+{"name":"lab-tkj-repository","private":true,"type":"module","scripts":{"start":"node server.mjs","test":"node --test test.mjs camera-route.test.mjs","setup":"node scripts/setup.mjs"},"engines":{"node":">=24"},"dependencies":{"three":"^0.186.1"}}

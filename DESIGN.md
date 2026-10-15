@@ -1,25 +1,31 @@
 # Lab TKJ
 
-Brief pengguna: TKJ SMK Negeri 1 Mojokerto; miniatur lab 3D, pengalaman praktik komputer/jaringan, kamera bergerak maju antar meja, tanpa estetika hacker dan tanpa video berbayar.
+Brief: landing page dan repository TKJ SMK Negeri 1 Mojokerto dengan miniatur lab pendidikan yang terang. Seluruh visual ruang dibuat melalui kode. Pengguna dapat memilih perjalanan scroll atau navigasi klik dari halaman pembuka hingga penutup.
 
-ENERGY 2 / RHYTHM 3 / MOTION 3. Interpretasi: ruang belajar interaktif untuk siswa, dengan miniatur konseptual yang terang. Bukan representasi terverifikasi fasilitas sekolah.
+ENERGY 2 / RHYTHM 3 / MOTION 3. Karakter gerakan: Corporate, responsif dan tenang. Tidak memakai video berbayar, estetika hacker, atau klaim fasilitas sekolah yang belum diverifikasi.
 
-- Kertas gading #f3f1e9 menjaga suasana kelas terang; tinta #233a3d untuk keterbacaan; biru perangkat #255c72 mengikat ilustrasi dan navigasi; kuning kabel #efc34b menandai filter aktif.
-- Avenir Next dan fallback sistem memberi bentuk humanis dan keterbacaan katalog; serif pada kalimat pembuka memberi kontras editorial.
-- Komposisi: pembuka tipografis, satu ruang 3D yang dipandu scroll, lalu katalog fungsional. Tidak menambahkan testimoni atau statistik.
-- Canvas memproyeksikan geometri 3D asli dari kode dengan perspektif dan pengurutan kedalaman; tidak mengunduh gambar atau video.
-- Gerakan kamera menjelaskan perpindahan workstation. Objek dan cahaya wajah ikut berubah perspektif sebagai lapisan sekunder dan lingkungan. Tidak ada loop dekoratif.
-- Gerakan interaksi memakai easing cubic-bezier(.2,0,0,1), 120/180/300 ms; karakter Corporate yang responsif. Reduced motion menampilkan pandangan tetap, tombol manual tersedia.
-- Scroll-world dipakai sebagai inspirasi perjalanan saja berdasarkan keputusan pengguna tanpa video; tidak mengklaim pipeline video seamless.
-- Katalog berbentuk baris untuk memudahkan perbandingan nama, kategori, ukuran dan versi. Dialog hanya untuk detail dan upload.
-- Bayangan hanya pada dialog untuk menandai elevasi. Sudut 3–8 px mempertahankan karakter peralatan lab.
+## Komposisi dan identitas
 
-## Revisi interaktif berbasis kode
+- Kertas gading #f3f1e9 dan ruang #eeeee5 menjaga suasana kelas terang; tinta #233a3d untuk teks; biru #255c72 menghubungkan perangkat dan heading; kuning #efc34b menunjukkan pilihan/aksi aktif.
+- Avenir Next dengan fallback sistem untuk katalog dan kontrol; serif pada kalimat kunci memberikan kontras editorial.
+- Enam segmen berurutan: pembuka → perakitan → jaringan → workstation → repository → penutup. Teks dan tindakan berada di samping satu ruang 3D persisten.
+- Renderer tidak dipasang ulang antarsegi. Viewport mempertahankan ukuran agar kamera tidak meloncat saat kategori konten berubah.
+- Pada HP, lab tetap terlihat di atas konten yang bergulir; mode, urutan perjalanan, dan kontrol kamera dapat diakses dengan sentuhan.
+- Repository mempertahankan pencarian, kategori Ebook/Aplikasi/File, pengurutan, detail, upload admin, dan unduhan.
 
-Canvas proyeksi manual diganti Three.js WebGL dengan depth buffer, shadow map, hemisphere/daylight, material roughness, dan screen textures yang digambar lokal. Three.js disajikan dari dependency terkunci melalui rute server yang diizinkan secara eksplisit.
+## Kamera dan perilaku
 
-Ruang tidak lagi bergantung pada scroll panjang. Pemilihan area menggerakkan kamera ke meja; kontrol putar/zoom dan drag memberi eksplorasi bebas; motherboard/CPU/RAM/pendingin memiliki exploded view; koneksi LAN mengaktifkan LED dan pengiriman paket yang selesai dalam 2,2 detik. Semua tindakan memiliki tombol keyboard, status teks, dan versi tanpa gerakan.
+- Mode scroll memetakan posisi halaman pada enam keyframe dengan jeda pendek di tiap tujuan. Posisi diinterpolasi dalam koordinat orbital (target, radius, yaw, elevasi) agar kamera tidak memotong meja.
+- Mode klik menahan kamera meskipun halaman digulir. Navigasi bawah, tautan antarsegmen, dan klik perangkat memindahkan kamera ke tujuan yang dipilih.
+- Perpindahan mode dimulai dari pose saat ini. Kontrol putar/zoom masuk mode klik dan memiliki batas sudut serta jarak.
+- Easing quintic memberikan kecepatan nol pada batas keyframe; interpolasi berbasis waktu menghaluskan input scroll cepat dan arah mundur.
+- Reduced motion memakai mode klik dan perpindahan langsung. Tombol Hentikan gerakan membekukan gerakan otomatis, sementara navigasi eksplisit tetap berfungsi.
+- Tidak ada render loop dekoratif. Render berjalan saat kamera/komponen berubah, ada paket data, atau highlight aktif. Tab tersembunyi menghentikan render.
 
-Komposisi baru: navigasi area di atas, inspector kontekstual di kiri, ruang 3D di kanan. Di HP, ruang ditampilkan sebelum inspector agar objek tetap mendapat area cukup. Geometri, texture layar, dan label dibuat lewat kode tanpa gambar/video generatif.
+## Model dan interaksi
 
-Render dijadwalkan hanya untuk perubahan input, transisi kamera/komponen, hover, dan pengiriman paket. Render berhenti ketika tab tidak terlihat atau lab di luar viewport. Warna ring menandai target pilihan, bukan dekorasi berulang.
+Three.js WebGL menggunakan depth buffer, shadow map, hemisphere/daylight dan material roughness. Geometri bertepi halus, tekstur kayu lokal, isi PC, lampu kerja, kabel, port, stopkontak, laci, printer, buku, dan jam membuat pandangan dekat tetap memiliki detail.
+
+Exploded view memperlihatkan hubungan motherboard/CPU/pendingin/RAM. Inspeksi CPU/RAM membuka komponen dan memberikan penjelasan. Kabel LAN mengaktifkan indikator link; satu paket bergerak hingga diterima switch. Monitor dapat dihidupkan/dimatikan. Lemari repository menghubungkan ruang fisik dengan katalog file.
+
+Setiap interaksi objek memiliki alternatif tombol native. Status dijelaskan dengan teks, bukan warna saja. Model merupakan miniatur konseptual, bukan dokumentasi fasilitas sekolah.

@@ -48,7 +48,7 @@ const server=http.createServer(async(req,res)=>{
  }
  const vendor={'/vendor/three.module.js':'three.module.js','/vendor/three.core.js':'three.core.js'};
  if(req.method==='GET' && vendor[url.pathname]){res.setHeader('Content-Type','text/javascript');res.end(await fs.readFile(path.join(root,'node_modules/three/build',vendor[url.pathname])));return;}
- const routes={'/':'index.html','/style.css':'style.css','/lab.css':'lab.css','/app.js':'app.js','/lab.js':'lab.js'};
+ const routes={'/':'index.html','/style.css':'style.css','/lab.css':'lab.css','/app.js':'app.js','/lab.js':'lab.js','/lab-controls.js':'lab-controls.js','/camera-route.js':'camera-route.js'};
  if(req.method==='GET' && routes[url.pathname]){const file=routes[url.pathname];res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'text/html; charset=utf-8');res.end(await fs.readFile(path.join(root,'public',file)));return;}
  json(res,404,{error:'Halaman tidak ditemukan.'});
  }catch{if(!res.headersSent)json(res,500,{error:'Permintaan tidak dapat diproses.'});else res.end();}
