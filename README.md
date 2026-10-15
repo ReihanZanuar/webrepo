@@ -2,6 +2,12 @@
 
 Landing page lab WebGL dan repository Ebook, Aplikasi, File. Metadata disimpan di SQLite; isi file disimpan sebagai berkas di volume yang sama. Kategori Praktik dihapus dari repository. Area lab interaktif tetap tersedia.
 
+## Jelajah lab
+
+Pilih **Ikuti scroll** atau **Pilih dengan klik** di header. Satu lab 3D menghubungkan enam segmen dari pembuka, perakitan, jaringan, workstation, repository hingga penutup. Mode klik mempertahankan kamera saat halaman digulir; navigasi bawah atau klik perangkat menentukan tujuan. Tombol putar/zoom dan drag masuk ke mode klik. Mode tersimpan selama sesi browser.
+
+Kamera memiliki batas sudut/jarak dan jalur orbital yang halus. CPU/RAM bisa diperiksa, komponen PC diangkat, kabel LAN disambungkan, paket simulasi dikirim, dan monitor dimatikan/dinyalakan. Reduced motion memilih mode klik dengan perpindahan langsung. Hentikan gerakan membekukan kamera otomatis tanpa menghilangkan navigasi eksplisit.
+
 ## Docker Compose
 
 Memerlukan Docker Engine/OrbStack/Docker Desktop dan Compose v2.
@@ -75,4 +81,5 @@ Belum tersedia edit/hapus koleksi, akun multiadmin, pemindaian malware, dan duku
 
 ## Pengujian
 
-`npm test` menguji SQLite sungguhan, tiga kategori, penolakan kategori Praktik, token tidak valid, signature/path tidak valid, download, proteksi berkas internal, persistensi, dan migrasi JSON idempoten. `docker compose config --quiet` memvalidasi Compose tanpa mencetak token. Lihat QA.md untuk pemeriksaan container/browser.
+`npm test` menguji kontinuitas jalur kamera dan pemetaan scroll, serta SQLite sungguhan, tiga kategori, penolakan kategori Praktik, token tidak valid, signature/path tidak valid, download, proteksi berkas internal, persistensi, dan migrasi JSON idempoten. `docker compose config --quiet` memvalidasi Compose tanpa mencetak token. Lihat QA.md untuk pemeriksaan container/browser.
+# Webrepo
