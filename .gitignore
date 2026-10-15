@@ -7,4 +7,8 @@ backups/
 secrets/
 output/
 .DS_Store
+certs/
+*.pem
+*.key
+*.crt
 *.log

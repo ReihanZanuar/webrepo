@@ -33,8 +33,8 @@ Port host diatur dengan `WEB_PORT` dalam `.env`; default 8080. Default `BIND_ADD
 ### Nginx Reverse Proxy & SSL (HTTPS)
 
 Proyek ini menyertakan service `nginx` bawaan di `compose.yaml` untuk meng-handle HTTPS dengan sertifikat Let's Encrypt / Certbot:
-- Atur `DOMAIN=namadomain.com` dan `CERTS_DIR=/etc/letsencrypt` di `.env`.
-- Sertifikat dari host di-mount secara read-only ke container Nginx.
+- Atur `DOMAIN=namadomain.com` dan letakkan `fullchain.pem` serta `privkey.pem` di folder `certs/` proyek (atau atur `CERTS_DIR`).
+- Sertifikat di-mount secara read-only ke container Nginx (`/etc/nginx/certs`).
 - Nginx otomatis me-redirect HTTP (port 80) ke HTTPS (port 443) dan meneruskan lalu lintas ke service `web:4173`.
 - Batas upload Nginx diatur 100 MB (`client_max_body_size 100M`) sesuai batas ukuran upload WebRepo.
 
