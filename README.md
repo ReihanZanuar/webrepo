@@ -28,7 +28,15 @@ docker compose stop
 docker compose start
 ```
 
-Port host diatur dengan `WEB_PORT` dalam `.env`; default 8080. Default `BIND_ADDRESS=127.0.0.1` hanya mengekspos ke komputer host. Untuk akses LAN, gunakan `BIND_ADDRESS=0.0.0.0` dan jalankan kembali `docker compose up -d`. Gunakan reverse proxy HTTPS sebelum mengirim kunci admin melalui jaringan publik.
+Port host diatur dengan `WEB_PORT` dalam `.env`; default 8080. Default `BIND_ADDRESS=127.0.0.1` hanya mengekspos ke komputer host. Untuk akses LAN, gunakan `BIND_ADDRESS=0.0.0.0` dan jalankan kembali `docker compose up -d`.
+
+### Nginx Reverse Proxy & SSL (HTTPS)
+
+Proyek ini menyertakan service `nginx` bawaan di `compose.yaml` untuk meng-handle HTTPS dengan sertifikat Let's Encrypt / Certbot:
+- Atur `DOMAIN=namadomain.com` dan `CERTS_DIR=/etc/letsencrypt` di `.env`.
+- Sertifikat dari host di-mount secara read-only ke container Nginx.
+- Nginx otomatis me-redirect HTTP (port 80) ke HTTPS (port 443) dan meneruskan lalu lintas ke service `web:4173`.
+- Batas upload Nginx diatur 100 MB (`client_max_body_size 100M`) sesuai batas ukuran upload WebRepo.
 
 Container memakai user non-root, root filesystem read-only, capability dihapus, dan healthcheck `/api/health`. Build hanya memasukkan source publik, server, database module, dan dependency. `.env`, database, backup, serta output QA dikecualikan dari image.
 
