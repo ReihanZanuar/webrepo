@@ -1,6 +1,6 @@
 import { stops, sampleRoute, routePosition, clamp, smooth } from './camera-route.js';
 
-export function mountJourney({THREE,canvas,viewport,renderer,scene,camera,stations,room,mat,lights,path,packet,marker,screens,litScreen,darkScreen,menuScreen,parts,partOrigins}) {
+export function mountJourney({THREE,canvas,viewport,renderer,scene,camera,stations,room,mat,lights,path,packet,marker,screens,litScreen,darkScreen,menuScreen,drawers,parts,partOrigins}) {
   const $=selector=>document.querySelector(selector);
   const media=matchMedia('(prefers-reduced-motion: reduce)');
   let paused=media.matches;
@@ -11,6 +11,12 @@ export function mountJourney({THREE,canvas,viewport,renderer,scene,camera,statio
   let computerFocus=0,computerTarget=0;
   const computer=$('#computer'),preview=$('#service-preview');
   let previewLink=null;
+  let repositoryCategory=$('[data-category][aria-pressed=true]').dataset.category;
+  document.addEventListener('repository-category-change',event=>{
+    const category=event.detail?.category;
+    if(category!=='Semua'&&!drawers.some(drawer=>drawer.category===category))return;
+    repositoryCategory=category;wake();
+  });
   let travel=null,scrollTimer=0,lastWheel=0,wheelLatched=false,wheelDelta=0,touch=null;
   const selection=new THREE.BoxHelper(parts[1],'#d9a421');selection.visible=false;scene.add(selection);
   function measure(){anchors=sections.map(section=>section.offsetTop);}
@@ -226,11 +232,22 @@ export function mountJourney({THREE,canvas,viewport,renderer,scene,camera,statio
     parts.forEach((part,index)=>{part.position.copy(partOrigins[index]);part.position.y+=explosion*[.13,.22,.8,.5][index];});
     if(selection.visible){selection.update();if(time>highlightUntil)selection.visible=false;}
     if(sending){const t=clamp((time-sendStart)/2600,0,1);packet.visible=true;packet.position.copy(path.curve.getPointAt(t));if(t>=1)finishPacket();}
+    const atRepository=destination===4&&!travel&&Math.abs(route-4)<.001;
+    let drawersMoving=false;
+    for(const drawer of drawers){
+      const target=atRepository&&(repositoryCategory==='Semua'||repositoryCategory===drawer.category)?1:0;
+      if(target!==drawer.target){drawer.from=drawer.progress;drawer.target=target;drawer.start=time;drawer.duration=target?450:320;}
+      const t=paused?1:clamp((time-drawer.start)/drawer.duration,0,1);
+      drawer.progress=drawer.from+(drawer.target-drawer.from)*smooth(t);
+      drawer.group.position.z=drawer.closedZ+drawer.progress*.72;
+      if(drawer.progress!==drawer.target)drawersMoving=true;
+    }
     updateChapter(Math.round(route));$('#route-progress').style.width=`${route/(stops.length-1)*100}%`;
     renderer.render(scene,camera);
     projectMenu();
     canvas.dataset.route=route.toFixed(4);canvas.dataset.camera=camera.position.toArray().map(n=>n.toFixed(3)).join(',');canvas.dataset.station=stops[selected].key;
-    if(travel||computerFocus!==computerTarget||Math.abs(yawOffset-targetYaw)>.0001||Math.abs(zoom-targetZoom)>.0001||Math.abs(explosion-goal)>.001||sending||selection.visible)wake();
+    canvas.dataset.drawers=JSON.stringify(Object.fromEntries(drawers.map(drawer=>[drawer.category,Number(drawer.progress.toFixed(4))])));
+    if(travel||drawersMoving||computerFocus!==computerTarget||Math.abs(yawOffset-targetYaw)>.0001||Math.abs(zoom-targetZoom)>.0001||Math.abs(explosion-goal)>.001||sending||selection.visible)wake();
   }
   updateMotion();resize();updateChapter(selected);$('#lab-loading').hidden=true;canvas.dataset.ready='true';
   // Align direct anchor visits after layout so each chapter starts at its exact stop.

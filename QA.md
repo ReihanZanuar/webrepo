@@ -1,5 +1,19 @@
 # Catatan verifikasi
 
+## Default Aplikasi dan loker kategori - 16 Oktober 2026
+
+- Filter awal HTML dan katalog memakai Aplikasi. Tiga laci bernomor menggantikan enam muka laci statis: 01 Ebook, 02 Aplikasi, 03 File. Setiap laci memiliki wadah/isi dan bergerak keluar 0,72 unit; pilihan Semua membuka ketiganya.
+- PASS Chrome/Docker: semua tertutup sebelum tiba di Repository, laci Aplikasi membuka setelah kamera berhenti, filter katalog dan laci sesuai untuk keempat kategori, nilai gerakan antara posisi tertutup/terbuka teramati, serta perpindahan kategori cepat berakhir pada pilihan terakhir. Keluar segmen menutup semuanya; kembali mempertahankan kategori.
+- PASS aktivasi filter melalui keyboard, reduced motion, kunjungan langsung dan pemuatan halaman baru pada #repository kembali ke Aplikasi, HP 390×844 tanpa overflow, dan filter katalog tetap berfungsi saat WebGL tidak tersedia. Tiga entri katalog adalah fixture browser melalui request interception, tidak ditambahkan ke database. Tidak ada pageerror. Screenshot desktop dan HP ditinjau: output/qa-2026-10-16/tkj-drawers-*.png.
+- PASS sintaks JS, git diff --check, build Docker lokal, reload Nginx, serta model lab.js melalui HTTPS lokal sama dengan source final. Android/iOS fisik belum diuji.
+
+## Kontrol HP dan bar perjalanan ringkas - 16 Oktober 2026
+
+- Kontrol gerakan/putar/zoom/reset pada HP sekarang berada di balik tombol Pengaturan tampilan lab; default tertutup. Desktop mempertahankan kontrol terbuka. Bar enam tujuan pada HP memakai tinggi 51 px, nomor 24 px, dan target sentuh minimal 44 px.
+- Panel dipindahkan ke lapisan halaman pada HP agar tidak terpotong batas canvas. Layar pendek menempatkan panel di bawah miniatur sehingga tidak menutupi nomor perjalanan. Escape, klik luar, fokus keluar, dan scroll menutupnya. Escape pada pengaturan tidak ikut menutup tampilan monitor.
+- PASS Chrome pada 390×844, 360×720, 320×500, dan 575×1075: kontrol default tertutup, pause/putar/reset tetap berfungsi, panel dapat ditutup, enam tujuan memiliki target minimal 44 px, bar setinggi 51 px, dan tidak ada overflow horizontal. Masuk/kembali monitor serta perpindahan segmen tetap berfungsi. Desktop 1440×1000 menampilkan kontrol lengkap. Tidak ada pageerror; screenshot HP ditinjau. Android/iOS fisik belum diuji.
+- PASS sintaks JS, git diff --check, build Docker lokal setelah menjalankan OrbStack, web healthy, reload Nginx, dan CSS final melalui HTTPS lokal sama dengan source. Bukti: output/qa-2026-10-16/tkj-mobile-controls-*.png dan tkj-mobile-settings-open-*.png.
+
 ## Tautan pada permukaan monitor - 16 Oktober 2026
 
 - Menggantikan dialog layanan versi sebelumnya: menu sekarang berada pada bidang layar monitor kiri dengan transformasi perspektif berdasarkan kamera. Hover/fokus menampilkan pop-up nama/alamat sesuai tautan; klik membuka tab baru. Monitor kanan mempertahankan diagram jaringan.

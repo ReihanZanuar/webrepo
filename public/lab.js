@@ -220,13 +220,37 @@ function initLab() {
 
   // Storage and workshop tools connect the physical room to the final repository chapter.
   const archive=stations.repository;
-  softBox(3.55,.74,1.25,2.1,1.42,1.05,palette.blue,archive);
+  softBox(3.55,.74,.75,2.1,1.42,.06,palette.blue,archive);
+  for(const x of [2.53,4.57])softBox(x,.74,1.25,.07,1.42,1.05,palette.blue,archive);
+  for(const y of [.12,.55,.98,1.43])box(3.55,y,1.25,2.04,.045,1.05,'#244f5c',archive);
   softBox(3.55,1.49,1.25,2.25,.12,1.18,palette.wood,archive).material=woodMaterial;
-  for(const x of [3.05,4.05])for(const y of [.35,.8,1.2]){
-    softBox(x,y,1.8,.89,.32,.035,'#376d7b',archive);
-    box(x,y,1.84,.3,.035,.045,'#a3b0a9',archive,{metalness:.55});
-    const tab=label(y>.9?'APLIKASI':y>.5?'EBOOK':'BERKAS',.48,.09);tab.position.set(x,y+.09,1.827);archive.add(tab);
-  }
+  const drawers=['Ebook','Aplikasi','File'].map((category,index)=>{
+    const group=new THREE.Group();group.position.set(3.55,1.18-index*.43,1.8);archive.add(group);
+    softBox(0,0,0,1.94,.35,.045,'#376d7b',group);
+    box(0,-.05,.06,.46,.045,.07,'#a3b0a9',group,{metalness:.55});
+    const tab=label(`0${index+1} / ${category.toUpperCase()}`,1.02,.12);tab.position.set(0,.075,.026);group.add(tab);
+    box(0,-.145,-.4,1.84,.04,.8,'#244f5c',group);
+    for(const x of [-.9,.9])box(x,-.005,-.4,.035,.26,.8,'#55818a',group);
+    box(0,-.005,-.8,1.84,.26,.035,'#55818a',group);
+    if(category==='Ebook'){
+      for(let i=0;i<3;i++){
+        box(-.35,-.1+i*.065,-.4,.65,.045,.5,'#eee9d7',group);
+        box(-.35,-.075+i*.065,-.4,.68,.012,.53,i%2?'#c9a85a':'#477a83',group);
+      }
+      box(.45,-.06,-.4,.5,.12,.55,'#d6bc8a',group);
+    }else if(category==='Aplikasi'){
+      for(let i=0;i<3;i++){
+        box(-.58+i*.58,-.06,-.4,.45,.13,.54,i===1?'#d0aa4e':'#6f989d',group);
+        const cover=label(['INSTALL','TOOLS','SETUP'][i],.35,.1);cover.rotation.x=-Math.PI/2;cover.position.set(-.58+i*.58,.007,-.4);group.add(cover);
+      }
+    }else{
+      for(let i=0;i<3;i++){
+        box(-.35+i*.3,-.1+i*.055,-.42,.78,.035,.53,i%2?'#e6e2d0':'#c7b37e',group);
+        box(-.57+i*.3,-.077+i*.055,-.68,.22,.012,.12,'#d6bc8a',group);
+      }
+    }
+    return {category,group,closedZ:group.position.z,progress:0,target:0,from:0,start:0,duration:450};
+  });
   for(let i=0;i<6;i++){
     const book=softBox(2.75+i*.16,1.87,1.25,.13,.65,.51,i%2?'#d6bc8a':'#e7e4d6',archive);book.rotation.z=i===5?-.1:0;
     box(2.75+i*.16,1.88,1.513,.08,.03,.008,palette.blue,archive);
@@ -234,7 +258,7 @@ function initLab() {
   softBox(4.12,1.73,1.25,.68,.35,.58,'#e4e4d8',archive);
   box(4.12,1.74,1.55,.48,.035,.012,palette.metal,archive);
   box(4.12,1.91,1.15,.46,.015,.4,'#fffdf3',archive);
-  const archiveSign=label('REPOSITORY',1.35,.2);archiveSign.position.set(3.55,1.4,1.85);archive.add(archiveSign);
+  const archiveSign=label('REPOSITORY',1.35,.12);archiveSign.position.set(3.55,1.49,1.85);archive.add(archiveSign);
   // Bench accessories use real scale relationships so close camera views still read as a lab.
   for(let i=0;i<4;i++)cylinder(-2.78+i*.27,1.48,1.19,.025,.045,'#b4bcae',stations.assembly);
   box(-.7,1.42,1.1,.33,.14,.24,'#d3b04f',stations.assembly);
@@ -256,5 +280,5 @@ function initLab() {
   const ground=mesh(new THREE.PlaneGeometry(150,150),mat('#eeeee5'),[0,-.43,0]);ground.rotation.x=-Math.PI/2;ground.castShadow=false;
 
   mountJourney({THREE,canvas,viewport,renderer,scene,camera,stations,room,mat,lights,path,packet,marker,
-    screens,litScreen,darkScreen,menuScreen,parts:[motherboard,cpu,cooler,ram],partOrigins});
+    screens,litScreen,darkScreen,menuScreen,drawers,parts:[motherboard,cpu,cooler,ram],partOrigins});
 }

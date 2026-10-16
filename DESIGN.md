@@ -18,6 +18,7 @@ ENERGY 2 / RHYTHM 3 / MOTION 3. Karakter gerakan: Corporate, responsif dan tenan
 - Perjalanan memakai enam tujuan diskret. Satu gestur memindahkan satu nomor selama 800 ms; kamera dan halaman memakai progres quintic yang sama, lalu berhenti tepat di tujuan. Event momentum trackpad dikelompokkan hingga ada jeda 220 ms. Konten panjang bergulir dalam panel agar halaman tidak menetap di sela segmen.
 - Navigasi bawah, tautan antarsegmen, dan klik perangkat memindahkan kamera ke tujuan yang dipilih. Pilihan mode di header dihapus sesuai revisi pengguna.
 - Kontrol putar/zoom ringkas berada tepat di bawah Hentikan gerakan di kanan atas. Ukuran tombol desktop 36 px, HP 44 px; tooltip berada di bawah kelompok kontrol. Scroll berikutnya mengembalikan sudut ke framing tujuan.
+- Pada HP, kontrol kamera dan gerakan dilipat menjadi satu tombol pengaturan 44 px di sudut kanan atas. Panel terbuka hanya saat diminta dan ditutup melalui klik luar, fokus keluar, Escape, atau perpindahan halaman. Pada layar pendek panel berada di bawah area miniatur agar nomor perjalanan tetap dapat disentuh. Bar perjalanan HP ditipiskan menjadi 51 px dengan nomor 24 px; area sentuh tiap tujuan tetap minimal 44 px.
 - Urutan perjalanan dan progres menjadi overlay mengambang di bagian bawah area 3D. Latar gading transparan dengan blur hanya pada komponen ini menjaga keterbacaan di atas geometri; bayangan tipis memisahkan target klik dari miniatur. Enam nomor selalu tampil, nama tujuan aktif tampil pada desktop, dan progres kuning mengikuti kamera. Semua target minimal 44 px. Footer provenance berada di penutup; tidak ada bar kaku yang mengambil bagian bawah layar. Bidang pandang desktop diperlebar menjadi 44 derajat untuk menjaga framing saat area 3D diperpanjang.
 - Easing quintic memberikan kecepatan nol pada batas keyframe; interpolasi berbasis waktu menghaluskan input scroll cepat dan arah mundur.
 - Reduced motion memakai perpindahan langsung. Tombol Hentikan gerakan menghentikan animasi; navigasi tujuan tetap berfungsi tanpa animasi.
@@ -30,6 +31,12 @@ Three.js WebGL menggunakan depth buffer, shadow map, hemisphere/daylight dan mat
 Exploded view memperlihatkan hubungan motherboard/CPU/pendingin/RAM. Inspeksi CPU/RAM membuka komponen dan memberikan penjelasan. Kabel LAN mengaktifkan indikator link; satu paket bergerak hingga diterima switch. Monitor dapat dihidupkan/dimatikan. Lemari repository menghubungkan ruang fisik dengan katalog file.
 
 Setiap interaksi objek memiliki alternatif tombol native. Status dijelaskan dengan teks, bukan warna saja. Model merupakan miniatur konseptual, bukan dokumentasi fasilitas sekolah.
+
+## Loker repository
+
+Kategori awal katalog adalah Aplikasi, dengan state awal bersumber dari tombol filter yang aktif. Lemari memiliki tiga laci: 01 Ebook di atas, 02 Aplikasi di tengah, dan 03 File di bawah. Rangka terbuka, rak pemisah, dinding laci, serta buku, kotak aplikasi, dan map di dalamnya membuat gerakan tarik terbaca sebagai benda fisik.
+
+Semua laci tertutup sepanjang perjalanan menuju Repository. Setelah kamera berhenti di tujuan, laci kategori aktif ditarik 0,72 unit selama 450 ms dengan easing quintic. Kategori lain menutup selama 320 ms; pilihan Semua membuka ketiganya. Mengganti pilihan saat bergerak melanjutkan dari posisi aktual. Meninggalkan Repository menutup semua laci; kembali memakai kategori terakhir, sedangkan pemuatan halaman baru kembali ke Aplikasi. Pause/reduced motion memperbarui posisi tanpa animasi. Tidak ada render loop ketika posisi telah selesai.
 
 ## Layanan workstation
 

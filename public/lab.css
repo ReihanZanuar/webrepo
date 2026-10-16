@@ -11,6 +11,9 @@ header nav{gap:24px}
 .lab-view-label{position:absolute;top:24px;left:25px;font-size:12px;color:#526366;pointer-events:none}
 .lab-hover{position:absolute;top:120px;right:4%;font-size:12px;padding:10px 14px;background:#233a3d;color:#fffdf5;border-radius:4px;pointer-events:none}
 .lab-tools{position:absolute;right:4%;top:10px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.lab-tools{z-index:3}
+.lab-settings-panel{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+#lab-settings-toggle{display:none}
 #motion{min-height:44px;padding:8px 11px;border:1px solid #68756b;background:#f3f1e9;color:#344b45;font-size:11px;border-radius:4px}
 .lab-camera{display:flex;align-items:center;gap:0;background:#f3f1e9;border:1px solid #68756b;padding:2px;border-radius:4px;white-space:nowrap}
 .lab-camera button{min-width:36px;min-height:36px;border:0;background:none;color:#233a3d;font-size:19px;border-radius:2px}
@@ -140,11 +143,17 @@ body[data-webgl=unavailable] .lab-camera{display:none}
  .lab-viewport{inset:0}
  .lab-view-label{left:5%;top:18px;font-size:10px}
  .lab-hover{top:116px;font-size:10px;padding:7px}
- .lab-tools{top:4px}
+ .lab-tools{top:4px;right:12px;flex-direction:row;align-items:flex-start}
+ #lab-settings-toggle{display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #aab2a5;border-radius:6px;background:#f3f1e9e6;color:#233a3d}
+ .lab-settings-panel{display:none;position:fixed;top:130px;right:12px;z-index:6;max-width:calc(100vw - 24px);padding:8px;background:#f3f1e9;border:1px solid #aab2a5;border-radius:6px;box-shadow:0 5px 18px #233a3d20;gap:6px}
+ body[data-lab-settings=open] .lab-settings-panel{display:flex}
+ .lab-settings-panel #motion{width:100%;text-align:left;font-size:12px}
  #motion{font-size:10px;padding:8px}
  .lab-camera button{min-width:44px;min-height:44px;font-size:20px}
  .lab-camera button:last-child{font-size:10px;padding:0 6px}
- .journey-rail{width:calc(100% - 24px);bottom:12px;gap:2px;padding:5px 7px 10px;background:rgba(243,241,233,.9)}
+ .journey-rail{width:calc(100% - 32px);bottom:8px;gap:2px;padding:0 6px 5px;border-radius:10px;background:rgba(243,241,233,.82);box-shadow:0 3px 12px #233a3d0d}
+ .route-index{width:24px;height:24px;font-size:10px}
+ .route-track{bottom:2px}
  .journey-rail a,.journey-rail a[aria-current=step]{flex:1;padding:5px 0;gap:0}
  .journey-rail a[aria-current=step] .route-name{display:none}
  .story-section{min-height:115svh;padding:calc(78px + max(36svh,240px) + 20px) 5% 100px;align-items:flex-start}
@@ -165,6 +174,8 @@ body[data-webgl=unavailable] .lab-camera{display:none}
 }
 @media(max-width:760px) and (max-height:640px){
  html{scroll-padding-top:calc(78px + max(32svh,184px) + 14px)}
+ .lab-settings-panel{top:calc(78px + max(32svh,184px) + 8px)}
+ body[data-computer=entered] .lab-settings-panel{top:130px}
  .world{height:32svh;min-height:184px}
  .journey-overlay{height:max(32svh,184px)}
  .story-section{padding-top:calc(78px + max(32svh,184px) + 20px)}

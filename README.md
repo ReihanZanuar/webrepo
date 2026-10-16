@@ -8,6 +8,8 @@ Satu lab 3D menghubungkan enam segmen dari pembuka, perakitan, jaringan, worksta
 
 Pada Workstation, monitor kiri menampilkan tautan Proxmox Debian, Proxmox Windows, dan AI TKJ. Masuk ke komputer mendekatkan kamera; hover/fokus memperlihatkan alamat tujuan dan klik membuka tab baru. Kembali ke meja atau memilih segmen lain mengembalikan perjalanan. Tautan tetap tersedia sebagai daftar inline jika WebGL gagal.
 
+Repository dimulai pada kategori Aplikasi. Filter menggerakkan tiga loker: 01 Ebook, 02 Aplikasi, dan 03 File. Hanya loker kategori terpilih yang terbuka; Semua membuka ketiganya. Loker tetap tertutup sebelum tiba di Repository dan menutup kembali saat meninggalkannya. Reduced motion mempertahankan pilihan loker tanpa animasi.
+
 Kamera memiliki batas sudut/jarak dan jalur orbital yang halus. CPU/RAM bisa diperiksa, komponen PC diangkat, kabel LAN disambungkan, paket simulasi dikirim, dan monitor dimatikan/dinyalakan. Reduced motion memakai perpindahan langsung. Hentikan gerakan menghentikan animasi; perpindahan tujuan tetap berfungsi tanpa animasi.
 
 Navigasi progres tampil sebagai overlay transparan di bagian bawah area 3D. Keenam nomor dapat diklik, nama tujuan aktif ditampilkan pada desktop, dan HP memakai nomor agar tetap ringkas. Keterangan miniatur berada di segmen penutup.
