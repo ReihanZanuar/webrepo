@@ -25,12 +25,13 @@ server {
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 10m;
 
-    # Batas ukuran upload berkas 100 MB (sesuai spesifikasi WebRepo)
-    client_max_body_size 100M;
+    client_max_body_size 10g;
+    client_body_timeout 900s;
 
     location / {
         proxy_pass http://web:4173;
         proxy_http_version 1.1;
+        proxy_request_buffering off;
 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -38,7 +39,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
 
         proxy_connect_timeout 60s;
-        proxy_send_timeout 120s;
-        proxy_read_timeout 120s;
+        proxy_send_timeout 900s;
+        proxy_read_timeout 900s;
     }
 }

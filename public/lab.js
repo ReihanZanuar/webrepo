@@ -10,7 +10,7 @@ try {
 } catch {
   $('#lab-loading').textContent = 'Tampilan 3D membutuhkan WebGL. Aktifkan akselerasi grafis browser, lalu muat ulang. Repository tetap bisa digunakan.';
   document.body.dataset.webgl='unavailable';
-  document.querySelectorAll('.lab-actions button,.lab-camera button,#motion,.explore-mode button').forEach(button => button.disabled = true);
+  document.querySelectorAll('.lab-actions button:not(#computer-open),.lab-camera button,#motion').forEach(button => button.disabled = true);
 }
 if (renderer) initLab();
 
@@ -74,7 +74,7 @@ function initLab() {
     const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;
     return new THREE.Mesh(new THREE.PlaneGeometry(width,height),new THREE.MeshBasicMaterial({map:texture}));
   }
-  function screenTexture(on=true) {
+  function screenTexture(on=true,services=false) {
     const c=document.createElement('canvas');c.width=640;c.height=400;const ctx=c.getContext('2d');
     ctx.fillStyle=on?'#173e50':'#17262d';ctx.fillRect(0,0,640,400);
     if(on){ctx.fillStyle='#b6dae1';ctx.font='500 26px sans-serif';ctx.fillText('LAB / TKJ',35,48);ctx.fillStyle='#8fb4be';ctx.font='18px sans-serif';ctx.fillText('Belajar dengan mencoba.',35,83);
@@ -82,10 +82,21 @@ function initLab() {
       for(const [x,y] of [[90,170],[280,170],[470,260]]){ctx.fillStyle='#b8d3d4';ctx.fillRect(x,y,80,52);ctx.fillStyle='#31718a';ctx.fillRect(x+7,y+7,66,35);ctx.fillStyle='#b8d3d4';ctx.fillRect(x+33,y+52,14,13);ctx.fillRect(x+22,y+64,36,5);}
       ctx.fillStyle='#b6dae1';ctx.font='16px sans-serif';ctx.fillText('PC 01',100,258);ctx.fillText('SWITCH',285,258);ctx.fillText('PC 02',480,350);
     }
+    if(services){
+      ctx.fillStyle='#f3f1e9';ctx.fillRect(0,0,640,400);ctx.fillStyle='#255c72';ctx.font='700 20px sans-serif';ctx.fillText('LAB / TKJ',24,45);
+      ctx.fillStyle='#526366';ctx.font='20px sans-serif';ctx.fillText('Pilih layanan',496,45);
+      document.querySelectorAll('#computer a').forEach((link,index)=>{
+        const y=60+index*108;ctx.fillStyle='#c3cabc';ctx.fillRect(24,y,592,2);
+        ctx.fillStyle='#233a3d';ctx.font='600 30px sans-serif';ctx.fillText(link.querySelector('.service-name').textContent,38,y+46);
+        ctx.fillStyle='#526366';ctx.font='19px sans-serif';ctx.fillText(link.querySelector('.service-address').textContent,38,y+75);
+        ctx.fillStyle='#255c72';ctx.font='32px sans-serif';ctx.fillText('↗',565,y+58);
+      });
+    }
     const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;return texture;
   }
   const litScreen = new THREE.MeshBasicMaterial({map: screenTexture(true)});
   const darkScreen = new THREE.MeshBasicMaterial({map: screenTexture(false)});
+  const menuScreen = new THREE.MeshBasicMaterial({map: screenTexture(true,true)});
   const room = new THREE.Group(); scene.add(room);
   box(0,-.22,0,10.5,.4,7.8,'#b6ad98',room);
   box(0,-.005,0,10.35,.06,7.65,'#dcd9cb',room);
@@ -132,7 +143,7 @@ function initLab() {
   function monitor(x,z,parent){
     box(x,1.36,z,.4,.035,.25,palette.metal,parent);box(x,1.61,z,.065,.5,.065,palette.metal,parent);
     box(x,1.99,z,1.14,.76,.075,'#263940',parent);
-    const display=mesh(new THREE.PlaneGeometry(1.04,.65),litScreen,[x,2.015,z+.04],parent);screens.push(display);
+    const display=mesh(new THREE.PlaneGeometry(1.04,.65),screens.length?litScreen:menuScreen,[x,2.015,z+.04],parent);screens.push(display);
     box(x+.48,1.66,z+.042,.026,.012,.01,'#b7e1bb',parent,{emissive:'#7dcf98',emissiveIntensity:.5});
   }
   function chair(x,z,parent){
@@ -245,5 +256,5 @@ function initLab() {
   const ground=mesh(new THREE.PlaneGeometry(150,150),mat('#eeeee5'),[0,-.43,0]);ground.rotation.x=-Math.PI/2;ground.castShadow=false;
 
   mountJourney({THREE,canvas,viewport,renderer,scene,camera,stations,room,mat,lights,path,packet,marker,
-    screens,litScreen,darkScreen,parts:[motherboard,cpu,cooler,ram],partOrigins});
+    screens,litScreen,darkScreen,menuScreen,parts:[motherboard,cpu,cooler,ram],partOrigins});
 }

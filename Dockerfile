@@ -3,7 +3,7 @@ ENV NODE_ENV=production HOST=0.0.0.0 PORT=4173 DATA_DIR=/data
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
-COPY --chown=node:node server.mjs database.mjs ./
+COPY --chown=node:node server.mjs database.mjs uploads.mjs ./
 COPY --chown=node:node public ./public
 RUN mkdir -p /data && chown node:node /data
 USER node
